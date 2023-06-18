@@ -1,10 +1,15 @@
 package com.zeroplus.retrofitexercise;
 
 public class Post {
-    private int userId, id;
+    private int userId;
+    private Integer id;
     private String title, description;
 
-
+    public Post(int userId, String title, String description) {
+        this.userId = userId;
+        this.title = title;
+        this.description = description;
+    }
 
     public int getUserId() {
         return userId;
@@ -14,11 +19,11 @@ public class Post {
         this.userId = userId;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

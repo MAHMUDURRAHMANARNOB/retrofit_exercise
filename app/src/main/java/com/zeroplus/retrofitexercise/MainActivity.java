@@ -35,14 +35,15 @@ public class MainActivity extends AppCompatActivity {
         jsonPlaceHolderAPI = retrofit.create(JsonPlaceHolderAPI.class);
 
         //getPost();
-        getComment();
+        //getComment();
+        createPost();
     }
 
-    private void getPost(){
-        Map<String,String> parameters = new HashMap<>();
-        parameters.put("userId","1");
-        parameters.put("_sort","id");
-        parameters.put("-order","desc");
+    private void getPost() {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("userId", "1");
+        parameters.put("_sort", "id");
+        parameters.put("-order", "desc");
 
 
         /*network_req*/
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
     /*private void getComment(){
 
-        *//*network_req*//*
+        //network_req
         Call<List<Comment>> call = jsonPlaceHolderAPI.getComments(3);
         call.enqueue(new Callback<List<Comment>>() {
             @Override
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }*/
-    private void getComment(){
+    private void getComment() {
 
         /*network_req*/
         /*Call<List<Comment>> call = jsonPlaceHolderAPI.getComments(3);*/
@@ -136,6 +137,50 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Comment>> call, Throwable t) {
+                textResult.setText(t.getMessage());
+            }
+        });
+    }
+
+    private void createPost() {
+        Post post = new Post(23, "New Title", "New Text");
+//        Call<Post> call = jsonPlaceHolderAPI.createPost(post);
+
+//        Call<Post> call = jsonPlaceHolderAPI.createPost(23,"new Title","very new text");
+
+        Map<String,String> fields = new HashMap<>();
+        fields.put("userId", "25");
+        fields.put("title", "hello");
+        fields.put("description", "asad");
+        Call<Post> call = jsonPlaceHolderAPI.createPost(fields);
+
+
+
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+
+                if (!response.isSuccessful()) {
+                    textResult.setText("Code " + response.code());
+                    return;
+                }
+
+                Post postResponse = response.body();
+
+                String content = "";
+                content += "Code" + response.code() + "\n";
+                content += "Id" + postResponse.getId() + "\n";
+                content += "UserID" + postResponse.getUserId() + "\n";
+                content += "Title" + postResponse.getTitle() + "\n";
+                content += "Text" + postResponse.getDescription() + "\n";
+
+                textResult.setText(content);
+
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
                 textResult.setText(t.getMessage());
             }
         });
