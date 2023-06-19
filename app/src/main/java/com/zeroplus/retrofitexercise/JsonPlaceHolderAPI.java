@@ -10,6 +10,9 @@ import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
+import retrofit2.http.HeaderMap;
+import retrofit2.http.Headers;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -68,7 +71,8 @@ public interface JsonPlaceHolderAPI {
     );
 
     @FormUrlEncoded
-    @POST("posts") //same as querymap
+    @POST("posts")
+        //same as querymap
     Call<Post> createPost(@FieldMap Map<String, String> fields);
 
 
@@ -89,5 +93,20 @@ public interface JsonPlaceHolderAPI {
 
     @DELETE("posts/{id}")
     Call<Void> deletePost(@Path("id") int id);
+
+    //Headers -> before any annotation @Headers()
+    /*@Headers("Static-Header: 123") */// <- single
+    @Headers({"Static-Header: 123", "Static-Header: 456"}) // <- Multiple // <- Static header and cannot be modified in runtime
+    @PUT("posts/{id}")
+    Call<Post> putPost(@Header("Dynamic-Header") String Header, // <- If we want to pass header pass through the java code, we can pass it as arguments.
+                       @Path("id") int id,
+                       @Body Post post);
+
+    //HeaderMap
+    @PATCH("posts/{id}")
+    Call<Post> patchPost(@HeaderMap Map<String,String> headers,
+                         @Path("id") int id,
+                         @Body Post post);
+
 
 }

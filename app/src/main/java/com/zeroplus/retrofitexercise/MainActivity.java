@@ -1,5 +1,6 @@
 package com.zeroplus.retrofitexercise;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -8,11 +9,14 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,6 +45,17 @@ public class MainActivity extends AppCompatActivity {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {  // <- For headers
+                    @NonNull
+                    @Override
+                    public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+                        Request originalReq = chain.request();
+                        Request newReq = originalReq.newBuilder()
+                                .header("interceptor-Header", "abcabc")
+                                .build();
+                        return chain.proceed(newReq);
+                    }
+                })
                 .addInterceptor(loggingInterceptor)
                 .build();
 
@@ -52,11 +67,12 @@ public class MainActivity extends AppCompatActivity {
 
         jsonPlaceHolderAPI = retrofit.create(JsonPlaceHolderAPI.class);
 
-        //getPost();
+        getPost();
         //getComment();
         //createPost();
-        updatePost();
+        //updatePost();
         //deletePost();
+        //headerPost();
     }
 
     private void getPost() {
@@ -246,6 +262,40 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<Void> call, Throwable t) {
                 textResult.setText(t.getMessage());
 
+            }
+        });
+    }
+
+    private void headerPost() {
+        Post post = new Post(12, "null", "new text");
+        //Call<Post> call = jsonPlaceHolderAPI.putPost("abc",5, post);   // <- for PUT
+
+        Map<String,String> headers =new HashMap<>();
+        headers.put("Map-header-1", "def");
+        Call<Post> call = jsonPlaceHolderAPI.patchPost(headers,5, post);  // <- for patch
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if (!response.isSuccessful()) {
+                    textResult.setText("Code " + response.code());
+                    return;
+                }
+
+                Post postResponse = response.body();
+
+                String content = "";
+                content += "Code: " + response.code() + "\n";
+                content += "Id: " + postResponse.getId() + "\n";
+                content += "UserID: " + postResponse.getUserId() + "\n";
+                content += "Title: " + postResponse.getTitle() + "\n";
+                content += "Text: " + postResponse.getDescription() + "\n";
+
+                textResult.setText(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                textResult.setText(t.getMessage());
             }
         });
     }
